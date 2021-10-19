@@ -13,7 +13,8 @@ class DatabaseManager:
                 pass
 
     def display(self) -> None:
-        self.sql_engine.terminal.main_screen()
+        while True:
+            self.sql_engine.terminal.main_screen()
 
     def execute(self, query: str, *args, fetch_all=True) -> SQLResults | SQLResult:
         return self.sql_engine.execute(query, *args, fetch_all=fetch_all)
