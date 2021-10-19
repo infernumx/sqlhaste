@@ -18,14 +18,14 @@ class Terminal:
         if not Terminal._state:
             self.console: Console = Console()
             self.engine: SQLEngine = engine
+            self.active_table = "dummy"
             Terminal._state = self.__dict__
         else:
             self.__dict__ = Terminal._state
 
     def collect_input(self) -> Any:
         input_options = [
-            ("Create dummy database", self.create_dummy_db),
-            ("Execute SQL", self.execute_sql),
+            ("Change Table", self.change_table),
         ]
 
         while True:
@@ -36,7 +36,7 @@ class Terminal:
             response: str = self.console.input("[green]>> ")
             size: int = len(input_options)
 
-            if response.isdigit() and 1 < int(response) < size + 1:
+            if response.isdigit() and 1 <= int(response) < size + 1:
                 response = int(response)
                 break
 
@@ -50,30 +50,17 @@ class Terminal:
     def create_dummy_db(self) -> None:
         pass
 
-    def list_tables(self) -> None:
-        """Displays each table found in current database"""
-
-        tables: SQLResults = self.engine.get_table_names()
-
-        self.console.print(f"[red underline]SQLite3 Tables for {self.engine.db_name}")
-
-        for table_name in tables:
-            self.console.print(f"[green underline]{table_name[0]}")
-
-        self.console.print()
-
-    def view_table(self) -> None:
+    def change_table(self) -> None:
         """Displays all contents of a specified table"""
         # TODO: allow viewing table scheme
 
-        table_name = self.console.input("[green]>> Table name: ")
-        rows: SQLResults = self.engine.get_rows_by_table_name(table_name)
-
-        if rows:
-            for i, data in enumerate(rows, start=1):
-                self.console.print(f"[#f542ef]Row #{i}:[/#f542ef] {data}")
-        else:
-            self.console.print(f"[red]Table {table_name} not found.")
+        tables: SQLResults = [table[0] for table in self.engine.get_table_names()]
+        while True:
+            table_name: str = self.console.input("[green]>> New active table name: ")
+            if table_name in tables:
+                break
+            self.console.print(f"[red]! Table {table_name!r} does not exist. ![/red]")
+        self.active_table = table_name
 
     def edit_table(self) -> None:
         # TODO: allow altering table scheme
@@ -90,7 +77,6 @@ class Terminal:
 
     def main_screen(self) -> None:
         # TODO: Pagination
-        self.active_table = "dummy"
         tables: SQLResults = self.engine.get_table_names()
         panel_data: dict[str, SQLResults] = {
             table[0]: self.engine.get_rows_by_table_name(table[0]) for table in tables
