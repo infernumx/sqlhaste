@@ -2,4 +2,5 @@ from .base import EngineBase
 
 
 class PostgresManager(EngineBase):
-    pass
+    def __init__(self):
+        pass

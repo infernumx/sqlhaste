@@ -10,7 +10,9 @@ class EngineBase(ABC):
         self.terminal: Terminal = Terminal(cls)
 
     @abstractmethod
-    def execute(self, query: str, *args, fetch_all=True) -> SQLResults | SQLResult:
+    def execute(
+        self, query: str, *args, fetch_all: bool = True
+    ) -> SQLResults | SQLResult:
         pass
 
     @abstractmethod
