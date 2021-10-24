@@ -6,6 +6,7 @@ from rich import box
 from typing import Any
 from .types import SQLEngine, SQLResults
 from .pagination import Paginator
+import src.commands as commands
 
 
 class Terminal:
@@ -23,38 +24,11 @@ class Terminal:
         else:
             self.__dict__ = Terminal._state
 
-    def collect_input(self) -> Any:
-        input_options = [
-            ("Change Table", self.change_table),
-        ]
-
-        while True:
-            # Continuous input until valid number is received
-
-            for index, option in enumerate(input_options, start=1):
-                self.console.print(f"[red][{index}] {option[0]}", end="; ")
-            response: str = self.console.input("[green]>> ")
-            size: int = len(input_options)
-
-            if response.isdigit() and 1 <= int(response) < size + 1:
-                response = int(response)
-                break
-
-            self.console.print(
-                f"[red underline]Please select a valid option (1-{size})."
-            )
-
-        opt, fn = input_options[response - 1]
-        return fn()
-
-    def create_dummy_db(self) -> None:
-        pass
-
     def change_table(self) -> None:
         """Displays all contents of a specified table"""
         # TODO: allow viewing table scheme
 
-        tables: SQLResults = [table[0] for table in self.engine.get_table_names()]
+        tables: list[str] = self.engine.get_table_names()
         while True:
             table_name: str = self.console.input("[green]>> New active table name: ")
             if table_name in tables:
@@ -62,45 +36,49 @@ class Terminal:
             self.console.print(f"[red]! Table {table_name!r} does not exist. ![/red]")
         self.active_table = table_name
 
-    def edit_table(self) -> None:
-        # TODO: allow altering table scheme
-        pass
-
-    def view_table_structure(self) -> None:
-        pass
-
-    def edit_table_structure(self) -> None:
-        pass
-
-    def execute_sql(self) -> None:
-        pass
-
-    def main_screen(self) -> None:
+    def show_db(self) -> None:
         # TODO: Pagination
-        tables: SQLResults = self.engine.get_table_names()
+        tables: list[str] = self.engine.get_table_names()
+
+        # Table name -> row data
         panel_data: dict[str, SQLResults] = {
-            table[0]: self.engine.get_rows_by_table_name(table[0]) for table in tables
+            name: self.engine.get_rows_by_table_name(name) for name in tables
         }
+
+        # Maximum height to output based on Rich console height
         height: int = min(
             self.console.height - 2, len(panel_data[self.active_table]) + 4
         )
+
+        # Maximum rows to display for pagination
         max_page: int = height - 4
-        table_names: list[str] = [
-            name
-            if name != self.active_table
-            else f"[green underline]{name}[/green underline]"
-            for name in list(panel_data.keys())
-        ]
+
+        # Table names with active table set
+        table_names: list[str] = [""] * (height - 2)
+
+        for i, name in enumerate(list(panel_data.keys())):
+            if name != self.active_table:
+                table_names[i] = name
+            else:
+                table_names[i] = f"[green underline]{name}[/green underline]"
+
+        table_names[-1] = "Page #1".center(15)
+
+        # Header column names for table data
         column_names: list[str] = [
             col[1]
             for col in self.engine.execute(f"PRAGMA table_info({self.active_table})")
         ]
+
+        # Table name panel (left side)
         sql_tables: Panel = Panel(
             "\n".join(table_names),
             expand=True,
-            height=min(len(table_names) + 2, self.console.height),
+            height=height,
             title=self.engine.db_name,
         )
+
+        # SQL data table
         sql_data: Table = Table(expand=True, box=box.DOUBLE)
         layout: Layout = Layout()
         layout.split_row(
@@ -118,4 +96,13 @@ class Terminal:
 
         self.console.print(layout, height=height)
 
-        response: int = self.collect_input()
+    def main_screen(self) -> None:
+        self.show_db()
+        response: str = self.console.input("[blue]$ [/blue]")
+        commands.call(response, self)
+        sys.stdin.read
+
+    @commands.command()
+    def help(self) -> None:
+        for command in commands.get_commands():
+            self.console.print(f"- {command.name}: {command.desc}")
