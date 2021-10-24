@@ -4,7 +4,7 @@ from rich.layout import Layout
 from rich.table import Table
 from rich import box
 from typing import Any
-from .types import SQLEngine, SQLResults
+from .types import SQLEngine, SQLResults, OptionalString
 from .pagination import Paginator
 import src.commands as commands
 
@@ -20,6 +20,8 @@ class Terminal:
             self.console: Console = Console()
             self.engine: SQLEngine = engine
             self.active_table = "dummy"
+            self.db_page = 1
+            self.paginator = None
             Terminal._state = self.__dict__
         else:
             self.__dict__ = Terminal._state
@@ -53,6 +55,8 @@ class Terminal:
         # Maximum rows to display for pagination
         max_page: int = height - 4
 
+        self.paginator = Paginator(panel_data[self.active_table], max_page)
+
         # Table names with active table set
         table_names: list[str] = [""] * (height - 2)
 
@@ -62,7 +66,7 @@ class Terminal:
             else:
                 table_names[i] = f"[green underline]{name}[/green underline]"
 
-        table_names[-1] = "Page #1".center(15)
+        table_names[-1] = f"Page {self.db_page}/{self.paginator.get_pages()}".center(13)
 
         # Header column names for table data
         column_names: list[str] = [
@@ -91,18 +95,58 @@ class Terminal:
             sql_data.add_column(name.title(), justify="center")
 
         # Add SQL table data
-        for row in panel_data[self.active_table][:max_page]:
-            sql_data.add_row(*map(str, row))
+        for row in self.paginator.get_page(self.db_page - 1):
+            if row:
+                sql_data.add_row(*map(str, row))
 
         self.console.print(layout, height=height)
+
+    def error(self, msg: str) -> None:
+        self.console.print(f"[red underline]Error: {msg}[/red underline]")
+
+    def success(self, msg: str) -> None:
+        self.console.print(f"[green underline]{msg}[/green underline]")
 
     def main_screen(self) -> None:
         self.show_db()
         response: str = self.console.input("[blue]$ [/blue]")
         commands.call(response, self)
+
+    @commands.command(usage="help <command; optional>")
+    def help(self, cmd_name: OptionalString = None) -> None:
+        """Describes all commands available, or a specified command"""
+        if isinstance(cmd_name, str):
+            if command := commands.get_command(cmd_name):
+                self.console.print(
+                    f"- {command.name}: {command.usage}\n  {command.desc}"
+                )
+            else:
+                self.error(f"Command {cmd_name!r} does not exist.")
+        else:
+            for command in commands.get_commands():
+                self.console.print(
+                    f"- {command.name}: {command.usage}\n  {command.desc}"
+                )
         self.console.input()
 
-    @commands.command()
-    def help(self) -> None:
-        for command in commands.get_commands():
-            self.console.print(f"- {command.name}: {command.desc}")
+    @commands.command(usage="swap <table_name>")
+    def swap(self, table_name: str) -> None:
+        """Swaps to a different table"""
+        tables: list[str] = self.engine.get_table_names()
+        if table_name not in tables:
+            self.error(f"Table {table_name} does not exist")
+            return
+        self.active_table = table_name
+        self.success(f"Table swapped to [underline]{table_name}[/underline]!")
+
+    @commands.command(name="exit")
+    def _exit(self):
+        """Exits the program"""
+        exit()
+
+    @commands.command(name="page")
+    def set_page(self, page: int):
+        """Sets the current page for the database"""
+        print(self.paginator.paged)
+        self.db_page = page
+        self.success(f"Page switched to {page}")

@@ -10,9 +10,16 @@ def grouper(iterable, n, fillvalue=None):
 
 
 class Paginator:
-    def __init__(self, data, console):
-        self.data = data
-        self.page = 0
+    def __init__(self, data: list[Any], size: int):
+        self.data: list[Any] = data
+        self.size: int = size
+        self.paged: list[list[Any]] = list(grouper(data, size))
 
-    def get_page(self, page: int) -> list[Any]:
-        pass
+    def get_pages(self) -> int:
+        return len(self.paged)
+
+    def get_page(
+        self,
+        page: int,
+    ) -> list[Any]:
+        return self.paged[page]

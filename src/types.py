@@ -6,3 +6,4 @@ if TYPE_CHECKING:
 SQLEngine = Union["SQLiteManager", "MySQLManager", "PostgresManager"]
 SQLResult = tuple
 SQLResults = list[SQLResult]
+OptionalString = str | None
