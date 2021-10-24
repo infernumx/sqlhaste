@@ -12,3 +12,11 @@ class EngineBase(ABC):
     @abstractmethod
     def execute(self, query: str, *args, fetch_all=True) -> SQLResults | SQLResult:
         pass
+
+    @abstractmethod
+    def get_table_names(self) -> SQLResults:
+        pass
+
+    @abstractmethod
+    def get_rows_by_table_name(self, table_name: str) -> SQLResults:
+        pass
