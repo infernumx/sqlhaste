@@ -100,7 +100,7 @@ class Terminal:
         self.show_db()
         response: str = self.console.input("[blue]$ [/blue]")
         commands.call(response, self)
-        sys.stdin.read
+        self.console.input()
 
     @commands.command()
     def help(self) -> None:
