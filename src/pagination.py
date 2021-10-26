@@ -22,4 +22,7 @@ class Paginator:
         self,
         page: int,
     ) -> list[Any]:
-        return self.paged[page]
+        try:
+            return self.paged[page]
+        except IndexError:
+            return []

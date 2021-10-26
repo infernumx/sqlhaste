@@ -56,7 +56,7 @@ class Terminal:
 
         self.paginator = Paginator(panel_data[self.active_table], max_page)
 
-        page_count: int = self.paginator.get_page_count()
+        page_count: int = max(1, self.paginator.get_page_count())
 
         # Table names with active table set
         table_names: list[str] = [""] * (height - 2)
