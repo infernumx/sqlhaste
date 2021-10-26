@@ -102,11 +102,17 @@ class Terminal:
 
         self.console.print(layout, height=height)
 
+    def halt(self) -> None:
+        """Halts output until a key is pressed"""
+        self.console.input("[underline]Press any key to continue.[/underline]")
+
     def error(self, msg: str) -> None:
         self.console.print(f"[red underline]Error: {msg}[/red underline]")
+        self.halt()
 
     def success(self, msg: str) -> None:
         self.console.print(f"[green underline]{msg}[/green underline]")
+        self.halt()
 
     def main_screen(self) -> None:
         self.console.rule("SQLHaste")
@@ -127,7 +133,12 @@ class Terminal:
         else:
             for cmd in commands.get_commands():
                 self.console.print(f"- {cmd.name}: {cmd.usage}\n  {cmd.desc}")
-        self.console.input()
+        self.halt()
+
+    @commands.command(name="exit")
+    def _exit(self):
+        """Exits the program"""
+        exit()
 
     @commands.command(usage="swap <table_name>")
     def swap(self, table_name: str) -> None:
@@ -138,11 +149,6 @@ class Terminal:
             return
         self.active_table = table_name
         self.success(f"Table swapped to [underline]{table_name}[/underline]!")
-
-    @commands.command(name="exit")
-    def _exit(self):
-        """Exits the program"""
-        exit()
 
     @commands.command(name="page")
     def set_page(self, page: int):
