@@ -4,11 +4,11 @@ from .types import SQLEngine, SQLResults, SQLResult
 
 class DatabaseManager:
     def __init__(self, db_name: str, engine_type: SQLEngine):
-        if engine_type == "SQLite3":
+        if engine_type == "sqlite3":
             self.sql_engine: SQLEngine = SQLiteManager(db_name)
-        elif engine_type == "MySQL":
+        elif engine_type == "mysql":
             pass
-        elif engine_type == "PostgreSQL":
+        elif engine_type == "postgresql":
             pass
 
     def display(self) -> None:
