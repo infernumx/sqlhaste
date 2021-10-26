@@ -3,6 +3,7 @@ from types import UnionType, NoneType
 from dataclasses import dataclass
 from .types import OptionalString
 import traceback
+import inspect
 
 if TYPE_CHECKING:
     from src.terminal import Terminal
@@ -29,20 +30,41 @@ def command(name: OptionalString = None, usage: OptionalString = ""):
     return inner
 
 
+def consume_rest(fn: Callable, data: str) -> tuple[list[str], str, int]:
+    """
+    Function to handle command calls with 1 string, splitting by
+    whitespace until the first positional argument is found.
+    Returns a tuple of the arguments and the rest of the string, along
+    with the index of the first positional argument.
+    """
+    args = data.split()
+    try:
+        pos_idx = str(inspect.signature(fn)).split(",").index(" /")
+        return args[:pos_idx], " ".join(args[pos_idx:]), pos_idx
+    except ValueError:
+        return args, "", -1
+
+
 def call(user_input: str, terminal: "Terminal"):
     if not user_input:
         return
 
-    parsed: list[Any] = user_input.split()
-    name: str = parsed[0]
-    args: list[Any] = parsed[1:]
+    name: str = user_input.split()[0]
 
     if cmd := _commands.get(name):
+        consumed: tuple[list[str], str, int] = consume_rest(
+            _commands[name].func, user_input
+        )
+        args: list[str] = consumed[0][1:]
+        rest: str = consumed[1]
+        pos_idx: int = consumed[2]
         n: int = cmd.func.__code__.co_argcount - 1
         annotations: list[Any] = list(cmd.func.__annotations__.values())
         if n != len(annotations):
             return cmd.func(terminal, *args[:n])
-
+        if pos_idx != -1:
+            annotations = annotations[: pos_idx - 1]  # account for 'self'
+        print(args, rest, annotations, pos_idx)
         try:
             # Attempt type conversion based on function annotations
             for i, annotation_type in enumerate(annotations):
@@ -64,7 +86,7 @@ def call(user_input: str, terminal: "Terminal"):
             traceback.print_exc()
             return
 
-        return cmd.func(terminal, *args[:n])
+        return cmd.func(terminal, *args[:n], rest)
     else:
         terminal.console.print(f"Command by the name of {name} not found.")
 

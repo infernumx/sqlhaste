@@ -1,13 +1,14 @@
 from .base import EngineBase
 from src.types import SQLResults, SQLResult
+from typing import Any
 import sqlite3
 from sqlite3 import Connection, Cursor
 
 
 class SQLiteManager(EngineBase):
     def __init__(self, db_name: str):
-        super().__init__(self, "SQLite", db_name)
         self.connection: Connection = sqlite3.connect(db_name)
+        super().__init__(self, "SQLite", db_name)
 
     def execute(
         self, query: str, *args, fetch_all: bool = True
@@ -26,3 +27,25 @@ class SQLiteManager(EngineBase):
 
     def get_rows_by_table_name(self, table_name: str) -> SQLResults:
         return self.execute(f"SELECT * FROM {table_name}")
+
+    def coerce_datatypes(self, data: list[str]) -> list[Any]:
+        """
+        Attempts to convert passed arguments to proper datatypes
+        in order to run the query.
+        """
+        coerced: list[Any] = []
+        for item in data:
+            if item == "NULL":
+                coerced.append(None)
+            elif item.isdigit():
+                coerced.append(int(item))
+            elif item.replace(".", "", 1).isdigit():
+                coerced.append(float(item))
+            else:
+                coerced.append(item)
+        return coerced
+
+    def insert(self, table_name: str, values: list[str]) -> None:
+        placeholders: str = ",".join(["?"] * len(values))
+        values = self.coerce_datatypes(values)
+        self.execute(f"INSERT INTO {table_name} VALUES ({placeholders})", *values)

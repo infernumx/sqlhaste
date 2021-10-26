@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any
 from src.terminal import Terminal
 from src.types import SQLEngine, SQLResults, SQLResult
 
@@ -21,4 +22,8 @@ class EngineBase(ABC):
 
     @abstractmethod
     def get_rows_by_table_name(self, table_name: str) -> SQLResults:
+        pass
+
+    @abstractmethod
+    def insert(self, table_name: str, values: list[Any]) -> None:
         pass

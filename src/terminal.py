@@ -7,6 +7,7 @@ from typing import Any
 from .types import SQLEngine, SQLResults, OptionalString
 from .pagination import Paginator
 import src.commands as commands
+import shlex
 
 
 class Terminal:
@@ -19,9 +20,10 @@ class Terminal:
         if not Terminal._state:
             self.console: Console = Console()
             self.engine: SQLEngine = engine
-            self.active_table = "dummy"
-            self.db_page = 1
-            self.paginator = None
+
+            self.active_table: str = self.engine.get_table_names()[0]
+            self.db_page: int = 1
+            self.paginator: Paginator = None
             Terminal._state = self.__dict__
         else:
             self.__dict__ = Terminal._state
@@ -39,7 +41,6 @@ class Terminal:
         self.active_table = table_name
 
     def show_db(self) -> None:
-        # TODO: Pagination
         tables: list[str] = self.engine.get_table_names()
 
         # Table name -> row data
@@ -48,14 +49,14 @@ class Terminal:
         }
 
         # Maximum height to output based on Rich console height
-        height: int = min(
-            self.console.height - 2, len(panel_data[self.active_table]) + 4
-        )
+        height: int = self.console.height - 2
 
         # Maximum rows to display for pagination
         max_page: int = height - 4
 
         self.paginator = Paginator(panel_data[self.active_table], max_page)
+
+        page_count: int = self.paginator.get_page_count()
 
         # Table names with active table set
         table_names: list[str] = [""] * (height - 2)
@@ -66,7 +67,7 @@ class Terminal:
             else:
                 table_names[i] = f"[green underline]{name}[/green underline]"
 
-        table_names[-1] = f"Page {self.db_page}/{self.paginator.get_pages()}".center(13)
+        table_names[-1] = f"Page {self.db_page}/{page_count}".center(13)
 
         # Header column names for table data
         column_names: list[str] = [
@@ -150,3 +151,9 @@ class Terminal:
         print(self.paginator.paged)
         self.db_page = page
         self.success(f"Page switched to {page}")
+
+    @commands.command(usage="insert <values>")
+    def insert(self, /, values: str):
+        """Inserts a new row into the active table"""
+        self.engine.insert(self.active_table, shlex.split(values))
+        self.success(f"Inserted {values!r} into {self.active_table}")

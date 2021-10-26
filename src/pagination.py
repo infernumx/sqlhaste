@@ -15,7 +15,7 @@ class Paginator:
         self.size: int = size
         self.paged: list[list[Any]] = list(grouper(data, size))
 
-    def get_pages(self) -> int:
+    def get_page_count(self) -> int:
         return len(self.paged)
 
     def get_page(
