@@ -70,8 +70,8 @@ class Terminal:
         table_names[-1] = f"Page {self.db_page}/{page_count}".center(13)
 
         # Header column names for table data
-        column_names: list[str] = [
-            col[1]
+        columns: list[tuple[str, str]] = [
+            (col[1], col[2])
             for col in self.engine.execute(f"PRAGMA table_info({self.active_table})")
         ]
 
@@ -92,8 +92,11 @@ class Terminal:
         )
 
         # Add SQL table columns
-        for name in column_names:
-            sql_data.add_column(name, justify="center")
+        for name, dtype in columns:
+            sql_data.add_column(
+                f"[#03fcec]{name}[/#03fcec] - [bold yellow]{dtype}[/bold yellow]",
+                justify="center",
+            )
 
         # Add SQL table data
         for row in self.paginator.get_page(self.db_page - 1):
