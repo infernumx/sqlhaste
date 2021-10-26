@@ -93,7 +93,7 @@ class Terminal:
 
         # Add SQL table columns
         for name in column_names:
-            sql_data.add_column(name.title(), justify="center")
+            sql_data.add_column(name, justify="center")
 
         # Add SQL table data
         for row in self.paginator.get_page(self.db_page - 1):
