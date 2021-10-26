@@ -4,7 +4,7 @@ from .types import SQLEngine, SQLResults, SQLResult
 
 class DatabaseManager:
     def __init__(self, db_name: str, engine_type: SQLEngine):
-        if engine_type == "sqlite3":
+        if engine_type in ("sqlite3", "sqlite"):
             self.sql_engine: SQLEngine = SQLiteManager(db_name)
         elif engine_type == "mysql":
             pass
