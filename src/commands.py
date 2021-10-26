@@ -1,5 +1,5 @@
-from typing import Any, Callable, Union, Optional, TYPE_CHECKING
-from types import UnionType, NoneType
+from typing import Any, Callable, TYPE_CHECKING
+from types import UnionType
 from dataclasses import dataclass
 from .types import OptionalString
 import traceback
@@ -61,10 +61,11 @@ def call(user_input: str, terminal: "Terminal"):
         n: int = cmd.func.__code__.co_argcount - 1
         annotations: list[Any] = list(cmd.func.__annotations__.values())
         if n != len(annotations):
+            if pos_idx != -1:
+                return cmd.func(terminal, *args[:n], rest)
             return cmd.func(terminal, *args[:n])
         if pos_idx != -1:
             annotations = annotations[: pos_idx - 1]  # account for 'self'
-        print(args, rest, annotations, pos_idx)
         try:
             # Attempt type conversion based on function annotations
             for i, annotation_type in enumerate(annotations):
@@ -86,7 +87,9 @@ def call(user_input: str, terminal: "Terminal"):
             traceback.print_exc()
             return
 
-        return cmd.func(terminal, *args[:n], rest)
+        if pos_idx != -1:
+            return cmd.func(terminal, *args[:n], rest)
+        return cmd.func(terminal, *args[:n])
     else:
         terminal.console.print(f"Command by the name of {name} not found.")
 
