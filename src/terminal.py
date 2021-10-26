@@ -23,7 +23,7 @@ class Terminal:
 
             self.active_table: str = self.engine.get_table_names()[0]
             self.db_page: int = 1
-            self.paginator: Paginator = None
+            self.paginator: Paginator = Paginator([], 0)
             Terminal._state = self.__dict__
         else:
             self.__dict__ = Terminal._state
@@ -109,6 +109,7 @@ class Terminal:
         self.console.print(f"[green underline]{msg}[/green underline]")
 
     def main_screen(self) -> None:
+        self.console.rule("SQLHaste")
         self.show_db()
         response: str = self.console.input("[blue]$ [/blue]")
         commands.call(response, self)
@@ -124,10 +125,8 @@ class Terminal:
             else:
                 self.error(f"Command {cmd_name!r} does not exist.")
         else:
-            for command in commands.get_commands():
-                self.console.print(
-                    f"- {command.name}: {command.usage}\n  {command.desc}"
-                )
+            for cmd in commands.get_commands():
+                self.console.print(f"- {cmd.name}: {cmd.usage}\n  {cmd.desc}")
         self.console.input()
 
     @commands.command(usage="swap <table_name>")
