@@ -1,6 +1,8 @@
 # SQLHaste
 SQLHaste features a shell-like approach to manage databases. To get started, simply type the command `help` in the terminal provided during execution.
 
+## Requirements
+- Python 3.10
 
 ## Installation
 
