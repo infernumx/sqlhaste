@@ -11,15 +11,11 @@ class SQLiteManager(EngineBase):
         super().__init__(self, "SQLite", db_name)
 
     @overload
-    def execute(
-        self, query: str, *args, fetch_all: Literal[True] = ...
-    ) -> SQLResults:
+    def execute(self, query: str, *args, fetch_all: Literal[True] = ...) -> SQLResults:
         ...
 
     @overload
-    def execute(
-        self, query: str, *args, fetch_all: Literal[False] = ...
-    ) -> SQLResults:
+    def execute(self, query: str, *args, fetch_all: Literal[False] = ...) -> SQLResults:
         ...
 
     def execute(
@@ -34,9 +30,7 @@ class SQLiteManager(EngineBase):
     def get_table_names(self) -> list[str]:
         return [
             row[0]
-            for row in self.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            )
+            for row in self.execute("SELECT name FROM sqlite_master WHERE type='table'")
         ]
 
     def get_rows_by_table_name(self, table_name: str) -> SQLResults:
@@ -62,6 +56,4 @@ class SQLiteManager(EngineBase):
     def insert(self, table_name: str, values: list[str]) -> None:
         placeholders: str = ",".join(["?"] * len(values))
         values = self.coerce_datatypes(values)
-        self.execute(
-            f"INSERT INTO {table_name} VALUES ({placeholders})", *values
-        )
+        self.execute(f"INSERT INTO {table_name} VALUES ({placeholders})", *values)
