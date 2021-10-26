@@ -35,11 +35,11 @@ def consume_rest(fn: Callable, data: str) -> tuple[list[str], str, int]:
     Function to handle command calls with 1 string, splitting by
     whitespace until the first positional argument is found.
     Returns a tuple of the arguments and the rest of the string, along
-    with the index of the first positional argument.
+    with the index of the first positional-only argument.
     """
-    args = data.split()
+    args: list[str] = data.split()
     try:
-        pos_idx = str(inspect.signature(fn)).split(",").index(" /")
+        pos_idx: int = str(inspect.signature(fn)).split(",").index(" /")
         return args[:pos_idx], " ".join(args[pos_idx:]), pos_idx
     except ValueError:
         return args, "", -1
