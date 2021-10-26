@@ -57,3 +57,7 @@ class SQLiteManager(EngineBase):
         placeholders: str = ",".join(["?"] * len(values))
         values = self.coerce_datatypes(values)
         self.execute(f"INSERT INTO {table_name} VALUES ({placeholders})", *values)
+
+    def delete(self, table_name: str, where: str, value: Any) -> None:
+        values = self.coerce_datatypes([value])
+        self.execute(f"DELETE FROM {table_name} WHERE {where}=?", *values)

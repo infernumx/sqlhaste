@@ -150,7 +150,7 @@ class Terminal:
         self.active_table = table_name
         self.success(f"Table swapped to [underline]{table_name}[/underline]!")
 
-    @commands.command(name="page")
+    @commands.command(name="page", usage="page <page_number>")
     def set_page(self, page: int):
         """Sets the current page for the database"""
         print(self.paginator.paged)
@@ -162,3 +162,9 @@ class Terminal:
         """Inserts a new row into the active table"""
         self.engine.insert(self.active_table, shlex.split(values))
         self.success(f"Inserted {values!r} into {self.active_table}")
+
+    @commands.command(usage="delete <where> <value>")
+    def delete(self, where: str, value: str):
+        """Deletes a row from the active table"""
+        self.engine.delete(self.active_table, where, value)
+        self.success(f"Deleted {value!r} from {self.active_table}")
