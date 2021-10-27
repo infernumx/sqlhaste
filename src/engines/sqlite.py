@@ -56,8 +56,15 @@ class SQLiteManager(EngineBase):
     def insert(self, table_name: str, values: list[str]) -> None:
         placeholders: str = ",".join(["?"] * len(values))
         values = self.coerce_datatypes(values)
-        self.execute(f"INSERT INTO {table_name} VALUES ({placeholders})", *values)
+        print(
+            self.execute(f"INSERT INTO {table_name} VALUES ({placeholders})", *values)
+        )
 
     def delete(self, table_name: str, where: str, value: Any) -> None:
         values = self.coerce_datatypes([value])
         self.execute(f"DELETE FROM {table_name} WHERE {where}=?", *values)
+
+    def update(self, table_name: str, where: str, value: Any, new_value: Any) -> None:
+        values = self.coerce_datatypes([new_value, value])
+        print(f"UPDATE {table_name} SET {where}=? WHERE {where}=?", values)
+        self.execute(f"UPDATE {table_name} SET {where}=? WHERE {where}=?", *values)

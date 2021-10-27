@@ -151,18 +151,22 @@ class Terminal:
             self.error(f"Table {table_name} does not exist")
             return
         self.active_table = table_name
+        self.db_page = 1
         self.success(f"Table swapped to [underline]{table_name}[/underline]!")
 
     @commands.command(name="page", usage="page <page_number>")
     def set_page(self, page: int):
-        """Sets the current page for the database"""
-        print(self.paginator.paged)
+        """Sets the page for the active table"""
+        if page < 1 or page > self.paginator.get_page_count():
+            self.error("Page number out of range")
+            return
         self.db_page = page
         self.success(f"Page switched to {page}")
 
     @commands.command(usage="insert <values>")
     def insert(self, /, values: str):
         """Inserts a new row into the active table"""
+        print(shlex.split(values))
         self.engine.insert(self.active_table, shlex.split(values))
         self.success(f"Inserted {values!r} into {self.active_table}")
 
@@ -171,3 +175,9 @@ class Terminal:
         """Deletes a row from the active table"""
         self.engine.delete(self.active_table, where, value)
         self.success(f"Deleted {value!r} from {self.active_table}")
+
+    @commands.command(usage="update <where> <value> <new_value>")
+    def update(self, where: str, value: str, new_value: str):
+        """Updates a row in the active table"""
+        self.engine.update(self.active_table, where, value, new_value)
+        self.success(f"Updated {value!r} to {new_value!r} in {self.active_table}")
