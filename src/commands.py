@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from .types import OptionalString
 import traceback
 import inspect
+import shlex
 
 if TYPE_CHECKING:
     from src.terminal import Terminal
@@ -37,10 +38,11 @@ def consume_rest(fn: Callable, data: str) -> tuple[list[str], str, int]:
     Returns a tuple of the arguments and the rest of the string, along
     with the index of the first positional-only argument.
     """
-    args: list[str] = data.split()
+    args: list[str] = shlex.split(data)
+
     try:
         pos_idx: int = str(inspect.signature(fn)).split(",").index(" /")
-        return args[:pos_idx], " ".join(args[pos_idx:]), pos_idx
+        return args[:pos_idx], " ".join(data.split()[pos_idx:]), pos_idx
     except ValueError:
         return args, "", -1
 
