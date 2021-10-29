@@ -166,7 +166,6 @@ class Terminal:
     @commands.command(usage="insert <values>")
     def insert(self, /, values: str):
         """Inserts a new row into the active table"""
-        print(shlex.split(values))
         self.engine.insert(self.active_table, shlex.split(values))
         self.success(f"Inserted {values!r} into {self.active_table}")
 
