@@ -15,6 +15,7 @@ SQLHaste features a shell-like approach to manage databases. To get started, sim
 - `python -m pip install -r requirements.txt`
 
 ## Usage
+SQLHaste can either be invoked by directly passing in a database name & engine, or by itself. If invoked by itself, it will ask you to select from any existing databases found in the root directory, or create a new database.
 
 ### Unix-based
 - `./sqlhaste.py <db name> <engine>`
@@ -22,5 +23,3 @@ SQLHaste features a shell-like approach to manage databases. To get started, sim
 
 ### Windows
 - `python sqlhaste.py <db name> <engine>`
-
-Invoking the program without a database name and engine will prompt you for both inside the program instead, they are not required to be passed through the shell.
