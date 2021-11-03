@@ -21,8 +21,9 @@ class Terminal:
         if not Terminal._state:
             self.console: Console = Console()
             self.engine: SQLEngine = engine
-
-            self.active_table: str = self.engine.get_table_names()[0]
+            self.active_table: str = ""
+            if table_names := self.engine.get_table_names():
+                self.active_table: str = table_names[0]
             self.db_page: int = 1
             self.paginator: Paginator = Paginator([], 0)
             Terminal._state = self.__dict__
@@ -41,8 +42,20 @@ class Terminal:
             self.console.print(f"[red]! Table {table_name!r} does not exist. ![/red]")
         self.active_table = table_name
 
-    def show_db(self) -> None:
+    def show_startup(self) -> None:
+        self.console.print(
+            f"[red]! No tables found in database {self.engine.db_name!r} ![/red]"
+        )
+        self.console.print("[red]! Please create a table first. ![/red]")
+        self.new_table()
+        self.active_table = self.engine.get_table_names()[0]
+
+    def show_db(self) -> bool:
         tables: list[str] = self.engine.get_table_names()
+
+        if not tables:
+            self.show_startup()
+            return False
 
         # Table name -> row data
         panel_data: dict[str, SQLResults] = {
@@ -105,6 +118,7 @@ class Terminal:
                 sql_data.add_row(*map(str, row))
 
         self.console.print(layout, height=height)
+        return True
 
     def halt(self) -> None:
         """Halts output until a key is pressed"""
@@ -120,7 +134,8 @@ class Terminal:
 
     def main_screen(self) -> None:
         self.console.rule("SQLHaste")
-        self.show_db()
+        if not self.show_db():
+            return self.main_screen()
         response: str = self.console.input("[blue]$ [/blue]")
         commands.call(response, self)
 
@@ -191,3 +206,17 @@ class Terminal:
             self.halt()
         except OperationalError as e:
             self.error(f"{e}")
+
+    @commands.command(name="newtable", usage="newtable")
+    def new_table(self):
+        """Creates a new table"""
+        table_name: str = self.console.input("[blue]$ [/blue]Table name: ")
+        columns: list[str] = []
+        while True:
+            column: str = self.console.input("[blue]$ [/blue]Column: ")
+            if column == "":
+                break
+            columns.append(column)
+
+        self.engine.execute(f"CREATE TABLE {table_name} ({', '.join(columns)})")
+        self.success("Table created!")

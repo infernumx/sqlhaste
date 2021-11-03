@@ -31,6 +31,7 @@ class SQLiteManager(EngineBase):
         return [
             row[0]
             for row in self.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            if row[0] != "sqlite_sequence"
         ]
 
     def get_rows_by_table_name(self, table_name: str) -> SQLResults:
@@ -56,9 +57,7 @@ class SQLiteManager(EngineBase):
     def insert(self, table_name: str, values: list[str]) -> None:
         placeholders: str = ",".join(["?"] * len(values))
         values = self.coerce_datatypes(values)
-        print(
-            self.execute(f"INSERT INTO {table_name} VALUES ({placeholders})", *values)
-        )
+        self.execute(f"INSERT INTO {table_name} VALUES ({placeholders})", *values)
 
     def delete(self, table_name: str, where: str, value: Any) -> None:
         values = self.coerce_datatypes([value])
