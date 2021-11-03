@@ -8,6 +8,7 @@ from .types import SQLEngine, SQLResults, OptionalString
 from .pagination import Paginator
 import src.commands as commands
 import shlex
+from sqlite3 import OperationalError
 
 
 class Terminal:
@@ -180,3 +181,13 @@ class Terminal:
         """Updates a row in the active table"""
         self.engine.update(self.active_table, where, value, new_value)
         self.success(f"Updated {value!r} to {new_value!r} in {self.active_table}")
+
+    # this command executes a query and displays the results
+    @commands.command(usage="query <query>")
+    def query(self, /, query: str):
+        """Executes a query and displays the results"""
+        try:
+            print(self.engine.execute(query))
+            self.halt()
+        except OperationalError as e:
+            self.error(f"{e}")
