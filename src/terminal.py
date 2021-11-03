@@ -210,10 +210,13 @@ class Terminal:
     @commands.command(name="newtable", usage="newtable")
     def new_table(self):
         """Creates a new table"""
-        table_name: str = self.console.input("[blue]$ [/blue]Table name: ")
+        table_name: str = self.console.input("[yellow][/yellow]Table name: ")
         columns: list[str] = []
+        self.console.print(
+            "[blue underline]Enter column specifications, or an empty line to finish.[/blue underline]"
+        )
         while True:
-            column: str = self.console.input("[blue]$ [/blue]Column: ")
+            column: str = self.console.input("[yellow]>> [/yellow] ")
             if column == "":
                 break
             columns.append(column)
