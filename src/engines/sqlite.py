@@ -15,7 +15,7 @@ class SQLiteManager(EngineBase):
         ...
 
     @overload
-    def execute(self, query: str, *args, fetch_all: Literal[False] = ...) -> SQLResults:
+    def execute(self, query: str, *args, fetch_all: Literal[False] = ...) -> SQLResult:
         ...
 
     def execute(
