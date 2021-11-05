@@ -11,11 +11,11 @@ class SQLiteManager(EngineBase):
         super().__init__(self, "SQLite", db_name)
 
     @overload
-    def execute(self, query: str, *args, fetch_all: Literal[True] = ...) -> SQLResults:
+    def execute(self, query: str, *args, fetch_all: Literal[True] = True) -> SQLResults:
         ...
 
     @overload
-    def execute(self, query: str, *args, fetch_all: Literal[False] = ...) -> SQLResult:
+    def execute(self, query: str, *args, fetch_all: Literal[False]) -> SQLResult:
         ...
 
     def execute(

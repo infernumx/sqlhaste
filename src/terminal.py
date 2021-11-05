@@ -23,7 +23,7 @@ class Terminal:
             self.engine: SQLEngine = engine
             self.active_table: str = ""
             if table_names := self.engine.get_table_names():
-                self.active_table: str = table_names[0]
+                self.active_table = table_names[0]
             self.db_page: int = 1
             self.paginator: Paginator = Paginator([], 0)
             Terminal._state = self.__dict__
