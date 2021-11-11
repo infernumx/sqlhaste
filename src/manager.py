@@ -1,4 +1,4 @@
-from .engines.sqlite import SQLiteManager
+from .engines import SQLiteManager
 from .types import SQLEngine, SQLResults, SQLResult
 
 
