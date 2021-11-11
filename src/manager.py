@@ -4,12 +4,13 @@ from .types import SQLEngine, SQLResults, SQLResult
 
 class DatabaseManager:
     def __init__(self, db_name: str, engine_type: str):
+        self.sql_engine: SQLEngine
         if engine_type in ("sqlite3", "sqlite"):
-            self.sql_engine: SQLEngine = SQLiteManager(db_name)
+            self.sql_engine = SQLiteManager(db_name)
         elif engine_type == "mysql":
-            pass
+            raise NotImplementedError("MySQL is not yet supported")
         elif engine_type == "postgresql":
-            pass
+            raise NotImplementedError("PostgreSQL is not supported yet.")
 
     def display(self) -> None:
         while True:
