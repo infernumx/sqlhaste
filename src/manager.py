@@ -3,7 +3,7 @@ from .types import SQLEngine, SQLResults, SQLResult
 
 
 class DatabaseManager:
-    def __init__(self, db_name: str, engine_type: SQLEngine):
+    def __init__(self, db_name: str, engine_type: str):
         if engine_type in ("sqlite3", "sqlite"):
             self.sql_engine: SQLEngine = SQLiteManager(db_name)
         elif engine_type == "mysql":
