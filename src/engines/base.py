@@ -11,13 +11,15 @@ class EngineBase(ABC):
         self.terminal: Terminal = Terminal(cls)
 
     @abstractmethod
-    def execute(
-        self, query: str, *args, fetch_all: bool = True
-    ) -> SQLResults | SQLResult:
+    def execute_get_one(self, query: str, *args) -> SQLResult:
         pass
 
     @abstractmethod
-    def get_table_names(self) -> SQLResults:
+    def execute_get_all(self, query: str, *args) -> SQLResults:
+        pass
+
+    @abstractmethod
+    def get_table_names(self) -> list[str]:
         pass
 
     @abstractmethod
@@ -26,4 +28,12 @@ class EngineBase(ABC):
 
     @abstractmethod
     def insert(self, table_name: str, values: list[Any]) -> None:
+        pass
+
+    @abstractmethod
+    def delete(self, table_name: str, where: str, value: Any) -> None:
+        pass
+
+    @abstractmethod
+    def update(self, table_name: str, where: str, value: Any, new_value: Any) -> None:
         pass
