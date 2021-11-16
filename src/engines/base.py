@@ -37,3 +37,7 @@ class EngineBase(ABC):
     @abstractmethod
     def update(self, table_name: str, where: str, value: Any, new_value: Any) -> None:
         pass
+
+    @abstractmethod
+    def create_table(self, table_name: str, columns: list[str]) -> None:
+        pass

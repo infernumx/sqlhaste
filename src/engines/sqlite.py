@@ -60,3 +60,6 @@ class SQLiteManager(EngineBase):
         values = self.coerce_datatypes([new_value, value])
         print(f"UPDATE {table_name} SET {where}=? WHERE {where}=?", values)
         self.execute_get_one(f"UPDATE {table_name} SET {where}=? WHERE {where}=?", *values)
+
+    def create_table(self, table_name: str, columns: list[str]) -> None:
+        self.execute_get_one(f"CREATE TABLE {table_name} ({', '.join(columns)})")
