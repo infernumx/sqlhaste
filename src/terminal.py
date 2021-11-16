@@ -221,5 +221,5 @@ class Terminal:
                 break
             columns.append(column)
 
-        self.engine.execute(f"CREATE TABLE {table_name} ({', '.join(columns)})")
+        self.engine.execute_get_one(f"CREATE TABLE {table_name} ({', '.join(columns)})")
         self.success("Table created!")
