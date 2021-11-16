@@ -219,7 +219,6 @@ class Terminal:
             column: str = self.console.input("[yellow]>> [/yellow] ")
             if column == "":
                 break
-            columns.append(column)
 
         self.engine.create_table(table_name, columns)
         self.success("Table created!")
