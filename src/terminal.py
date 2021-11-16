@@ -86,7 +86,7 @@ class Terminal:
         # Header column names for table data
         columns: list[tuple[str, str]] = [
             (col[1], col[2])
-            for col in self.engine.execute(f"PRAGMA table_info({self.active_table})")
+            for col in self.engine.execute_get_all(f"PRAGMA table_info({self.active_table})")
         ]
 
         # Table name panel (left side)
@@ -202,7 +202,7 @@ class Terminal:
     def query(self, /, query: str):
         """Executes a query and displays the results"""
         try:
-            print(self.engine.execute(query))
+            print(self.engine.execute_get_all(query))
             self.halt()
         except OperationalError as e:
             self.error(f"{e}")
