@@ -14,7 +14,7 @@ class SQLiteManager(EngineBase):
         with self.connection as cursor:
             result: Cursor = cursor.execute(query, args)
             return result.fetchone()
-    
+
     def execute_get_all(self, query: str, *args) -> SQLResults:
         with self.connection as cursor:
             result: Cursor = cursor.execute(query, args)
@@ -23,12 +23,17 @@ class SQLiteManager(EngineBase):
     def get_table_names(self) -> list[str]:
         return [
             row[0]
-            for row in self.execute_get_all("SELECT name FROM sqlite_master WHERE type='table'")
+            for row in self.execute_get_all(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            )
             if row[0] != "sqlite_sequence"
         ]
 
     def get_rows_by_table_name(self, table_name: str) -> SQLResults:
         return self.execute_get_all(f"SELECT * FROM {table_name}")
+
+    def get_table_info(self, table_name: str) -> SQLResults:
+        return self.execute_get_all(f"PRAGMA table_info({table_name})")
 
     def coerce_datatypes(self, data: list[str]) -> list[Any]:
         """
@@ -50,7 +55,9 @@ class SQLiteManager(EngineBase):
     def insert(self, table_name: str, values: list[str]) -> None:
         placeholders: str = ",".join(["?"] * len(values))
         values = self.coerce_datatypes(values)
-        self.execute_get_one(f"INSERT INTO {table_name} VALUES ({placeholders})", *values)
+        self.execute_get_one(
+            f"INSERT INTO {table_name} VALUES ({placeholders})", *values
+        )
 
     def delete(self, table_name: str, where: str, value: Any) -> None:
         values = self.coerce_datatypes([value])
@@ -59,7 +66,9 @@ class SQLiteManager(EngineBase):
     def update(self, table_name: str, where: str, value: Any, new_value: Any) -> None:
         values = self.coerce_datatypes([new_value, value])
         print(f"UPDATE {table_name} SET {where}=? WHERE {where}=?", values)
-        self.execute_get_one(f"UPDATE {table_name} SET {where}=? WHERE {where}=?", *values)
+        self.execute_get_one(
+            f"UPDATE {table_name} SET {where}=? WHERE {where}=?", *values
+        )
 
     def create_table(self, table_name: str, columns: list[str]) -> None:
         self.execute_get_one(f"CREATE TABLE {table_name} ({', '.join(columns)})")

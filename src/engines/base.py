@@ -27,6 +27,10 @@ class EngineBase(ABC):
         pass
 
     @abstractmethod
+    def get_table_info(self, table_name: str) -> SQLResults:
+        pass
+
+    @abstractmethod
     def insert(self, table_name: str, values: list[Any]) -> None:
         pass
 
