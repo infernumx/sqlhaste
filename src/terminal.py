@@ -84,6 +84,7 @@ class Terminal:
         table_names[-1] = f"Page {self.db_page}/{page_count}".center(13)
 
         # Header column names for table data
+        
         columns: list[tuple[str, str]] = [
             (col[1], col[2]) for col in self.engine.get_table_info(self.active_table)
         ]
