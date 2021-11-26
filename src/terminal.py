@@ -85,8 +85,7 @@ class Terminal:
 
         # Header column names for table data
         columns: list[tuple[str, str]] = [
-            (col[1], col[2])
-            for col in self.engine.execute_get_all(f"PRAGMA table_info({self.active_table})")
+            (col[1], col[2]) for col in self.engine.get_table_info(self.active_table)
         ]
 
         # Table name panel (left side)
